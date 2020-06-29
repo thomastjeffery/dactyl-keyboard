@@ -1,11 +1,10 @@
-(ns dactyl-keyboard.switch-hole
+(ns dactyl-keyboard.switch-holes
   (:refer-clojure :exclude [use import])
   (:require [scad-clj.scad :refer :all]
             [scad-clj.model :refer :all]
             [dactyl-keyboard.util :refer :all]
             [dactyl-keyboard.kailh-hole :refer :all]
-            [dactyl-keyboard.sa-keycaps :refer :all]
-            [unicode-math.core :refer :all]))
+            [dactyl-keyboard.sa-keycaps :refer :all]))
 
 (def switch-hole kailh-hole)
 
@@ -16,8 +15,8 @@
 ;; Placement Functions ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(def α (/ π 12))
-(def β (/ π 36))
+(def α (/ Math/PI 12))
+(def β (/ Math/PI 36))
 
 (def columns (range 0 6))
 (def rows (range 0 4))
@@ -49,7 +48,7 @@
                           (translate [0 0 column-radius])
                           (translate column-offset))]
     (->> placed-shape
-         (rotate (/ π 12) [0 1 0])
+         (rotate (/ Math/PI 12) [0 1 0])
          (translate [0 0 13]))))
 
 (defn place [shape]

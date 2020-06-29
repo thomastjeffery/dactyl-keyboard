@@ -2,8 +2,7 @@
   (:refer-clojure :exclude [use import])
   (:require [scad-clj.scad :refer :all]
             [scad-clj.model :refer :all]
-            [dactyl-keyboard.util :refer :all]
-            [unicode-math.core :refer :all]))
+            [dactyl-keyboard.util :refer :all]))
 
 ;;;;;;;;;;;;;;;;;
 ;; Switch Hole ;;
@@ -14,7 +13,6 @@
 
 (def sa-profile-key-height 12.7)
 
-(def plate-thickness 4)
 (def mount-width (+ keyswitch-width 3))
 (def mount-height (+ keyswitch-height 3))
 
@@ -28,7 +26,7 @@
                                      0
                                      (/ plate-thickness 2)]))
           side-nub (->> (binding [*fn* 30] (cylinder 1 2.75))
-                        (rotate (/ π 2) [1 0 0])
+                        (rotate (/ Math/PI 2) [1 0 0])
                         (translate [(+ (/ keyswitch-width 2)) 0 1])
                         (hull (->> (cube 1.5 2.75 plate-thickness)
                                    (translate [(+ (/ 1.5 2) (/ keyswitch-width 2))
@@ -117,8 +115,8 @@
 (def columns (range 0 6))
 (def rows (range 1 5))
 
-(def α (/ π 12))
-(def β (/ π 36))
+(def α (/ Math/PI 12))
+(def β (/ Math/PI 36))
 (def cap-top-height (+ plate-thickness sa-profile-key-height))
 (def row-radius (+ (/ (/ (+ mount-height 1/2) 2)
                       (Math/sin (/ α 2)))
@@ -143,7 +141,7 @@
                           (translate [0 0 column-radius])
                           (translate column-offset))]
     (->> placed-shape
-         (rotate (/ π 12) [0 1 0])
+         (rotate (/ Math/PI 12) [0 1 0])
          (translate [0 0 13]))))
 
 (defn case-place [column row shape]
@@ -159,7 +157,7 @@
                           (translate [0 0 column-radius])
                           (translate column-offset))]
     (->> placed-shape
-         (rotate (/ π 12) [0 1 0])
+         (rotate (/ Math/PI 12) [0 1 0])
          (translate [0 0 13]))))
 
 (def key-holes
@@ -238,11 +236,11 @@
 
 (defn thumb-place [column row shape]
   (let [cap-top-height (+ plate-thickness sa-profile-key-height)
-        α (/ π 12)
+        α (/ Math/PI 12)
         row-radius (+ (/ (/ (+ mount-height 1) 2)
                          (Math/sin (/ α 2)))
                       cap-top-height)
-        β (/ π 36)
+        β (/ Math/PI 36)
         column-radius (+ (/ (/ (+ mount-width 2) 2)
                             (Math/sin (/ β 2)))
                          cap-top-height)
@@ -257,15 +255,15 @@
          (rotate (* column β) [0 1 0])
          (translate [0 0 column-radius])
          (translate [mount-width 0 0])
-         (rotate (* π (- 1/4 3/16)) [0 0 1])
-         (rotate (/ π 12) [1 1 0])
+         (rotate (* Math/PI (- 1/4 3/16)) [0 0 1])
+         (rotate (/ Math/PI 12) [1 1 0])
          (translate [-52 -45 40]))))
 
 (defn thumb-2x-column [shape]
-  (thumb-place 0 -1/2 (rotate (/ π 2) [0 0 1] shape)))
+  (thumb-place 0 -1/2 (rotate (/ Math/PI 2) [0 0 1] shape)))
 
 (defn thumb-2x+1-column [shape]
-  (union (thumb-place 1 -1/2 (rotate (/ π 2) [0 0 1] shape))
+  (union (thumb-place 1 -1/2 (rotate (/ Math/PI 2) [0 0 1] shape))
          (thumb-place 1 1 shape)))
 
 (defn thumb-1x-column [shape]
@@ -797,7 +795,7 @@
                           (not= row 4))]
             (->> bottom-key-guard
                  (key-place column row))))
-   (thumb-layout-bottom (rotate (/ π 2) [0 0 1] bottom-key-guard))
+   (thumb-layout-bottom (rotate (/ Math/PI 2) [0 0 1] bottom-key-guard))
    (apply union
           (for [column columns
                 row [(last rows)] ;;
@@ -1193,13 +1191,13 @@
 (def trrs-hole (->> (union (cylinder trrs-radius trrs-hole-depth)
                            (->> (cube trrs-diameter (+ trrs-radius 5) trrs-hole-depth)
                                 (translate [0 (/ (+ trrs-radius 5) 2) 0])))
-                    (rotate (/ π 2) [1 0 0])
+                    (rotate (/ Math/PI 2) [1 0 0])
                     (translate [0 (+ (/ mount-height 2) 4) (- trrs-radius)])
                     (with-fn 50)))
 
 (def trrs-hole-just-circle
   (->> (cylinder trrs-radius trrs-hole-depth)
-       (rotate (/ π 2) [1 0 0])
+       (rotate (/ Math/PI 2) [1 0 0])
        (translate [0 (+ (/ mount-height 2) 4) (- trrs-radius)])
        (with-fn 50)
        (key-place 1/2 0)))
@@ -1253,7 +1251,7 @@
                            (translate [(/ (- hole-width hole-height) 2) 0 0]))]
     (->> (hull side-cylinder
                (mirror [-1 0 0] side-cylinder))
-         (rotate (/ π 2) [1 0 0])
+         (rotate (/ Math/PI 2) [1 0 0])
          (translate [0 (/ teensy-length 2) (- side-radius)])
          (translate [0 0 (- 1)])
          (translate [0 0 (- teensy-offset-height)])

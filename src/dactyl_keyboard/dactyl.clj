@@ -5,8 +5,7 @@
             [dactyl-keyboard.util :refer :all]
             [dactyl-keyboard.kailh-hole :refer :all]
             [dactyl-keyboard.sa-keycaps :refer :all]
-            [dactyl-keyboard.switch-holes :refer :all]
-            [unicode-math.core :refer :all]))
+            [dactyl-keyboard.switch-holes :refer :all]))
 
 (defn case-place [column row shape]
   (let [row-placed-shape (->> shape
@@ -21,7 +20,7 @@
                           (translate [0 0 column-radius])
                           (translate column-offset))]
     (->> placed-shape
-         (rotate (/ π 12) [0 1 0])
+         (rotate (/ Math/PI 12) [0 1 0])
          (translate [0 0 13]))))
 
 ;;;;;;;;;;;;
@@ -30,11 +29,11 @@
 
 (defn thumb-place [column row shape]
   (let [cap-top-height (+ plate-thickness sa-profile-key-height)
-        α (/ π 12)
+        α (/ Math/PI 12)
         row-radius (+ (/ (/ (+ mount-height 1) 2)
                          (Math/sin (/ α 2)))
                       cap-top-height)
-        β (/ π 36)
+        β (/ Math/PI 36)
         column-radius (+ (/ (/ (+ mount-width 2) 2)
                             (Math/sin (/ β 2)))
                          cap-top-height)
@@ -49,8 +48,8 @@
          (rotate (* column β) [0 1 0])
          (translate [0 0 column-radius])
          (translate [mount-width 0 0])
-         (rotate (* π (- 1/4 3/16)) [0 0 1])
-         (rotate (/ π 12) [1 1 0])
+         (rotate (* Math/PI (- 1/4 3/16)) [0 0 1])
+         (rotate (/ Math/PI 12) [1 1 0])
          (translate [-52 -45 40]))))
 
 (defn thumb-2x-column [shape]
@@ -174,7 +173,7 @@
 (def thumb
   (union
    thumb-connectors
-   (thumb-layout (rotate (/ π 2) [0 0 1] switch-hole))
+   (thumb-layout (rotate (/ Math/PI 2) [0 0 1] switch-hole))
    (thumb-place 0 -1/2 double-plates)
    (thumb-place 1 -1/2 double-plates)))
 
@@ -553,7 +552,7 @@
                           (not= row 4))]
             (->> bottom-key-guard
                  (key-place column row))))
-   (thumb-layout (rotate (/ π 2) [0 0 1] bottom-key-guard))
+   (thumb-layout (rotate (/ Math/PI 2) [0 0 1] bottom-key-guard))
    (apply union
           (for [column columns
                 row [(last rows)] ;;
@@ -916,13 +915,13 @@
 (def trrs-hole (->> (union (cylinder trrs-radius trrs-hole-depth)
                            (->> (cube trrs-diameter (+ trrs-radius 5) trrs-hole-depth)
                                 (translate [0 (/ (+ trrs-radius 5) 2) 0])))
-                    (rotate (/ π 2) [1 0 0])
+                    (rotate (/ Math/PI 2) [1 0 0])
                     (translate [0 (+ (/ mount-height 2) 4) (- trrs-radius)])
                     (with-fn 50)))
 
 (def trrs-hole-just-circle
   (->> (cylinder trrs-radius trrs-hole-depth)
-       (rotate (/ π 2) [1 0 0])
+       (rotate (/ Math/PI 2) [1 0 0])
        (translate [0 (+ (/ mount-height 2) 4) (- trrs-radius)])
        (with-fn 50)
        (key-place 1/2 0)))
@@ -976,7 +975,7 @@
                            (translate [(/ (- hole-width hole-height) 2) 0 0]))]
     (->> (hull side-cylinder
                (mirror [-1 0 0] side-cylinder))
-         (rotate (/ π 2) [1 0 0])
+         (rotate (/ Math/PI 2) [1 0 0])
          (translate [0 (/ teensy-length 2) (- side-radius)])
          (translate [0 0 (- 1)])
          (translate [0 0 (- teensy-offset-height)])
