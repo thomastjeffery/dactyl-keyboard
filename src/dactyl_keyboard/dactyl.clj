@@ -3,148 +3,10 @@
   (:require [scad-clj.scad :refer :all]
             [scad-clj.model :refer :all]
             [dactyl-keyboard.util :refer :all]
+            [dactyl-keyboard.kailh-hole :refer :all]
+            [dactyl-keyboard.sa-keycaps :refer :all]
+            [dactyl-keyboard.switch-holes :refer :all]
             [unicode-math.core :refer :all]))
-
-;;;;;;;;;;;;;;;;;
-;; Switch Hole ;;
-;;;;;;;;;;;;;;;;;
-
-(def keyswitch-height 14.4) ;; Was 14.1, then 14.25
-(def keyswitch-width 14.4)
-
-(def sa-profile-key-height 12.7)
-
-(def plate-thickness 4)
-(def mount-width (+ keyswitch-width 3))
-(def mount-height (+ keyswitch-height 3))
-
-(def old-single-plate
-  (let [top-wall (->> (cube (+ keyswitch-width 3) 1.5 plate-thickness)
-                      (translate [0
-                                  (+ (/ 1.5 2) (/ keyswitch-height 2))
-                                  (/ plate-thickness 2)]))
-        left-wall (->> (cube 1.5 (+ keyswitch-height 3) plate-thickness)
-                       (translate [(+ (/ 1.5 2) (/ keyswitch-width 2))
-                                   0
-                                   (/ plate-thickness 2)]))
-        side-nub (->> (binding [*fn* 30] (cylinder 1 2.75))
-                      (rotate (/ π 2) [1 0 0])
-                      (translate [(+ (/ keyswitch-width 2)) 0 1])
-                      (hull (->> (cube 1.5 2.75 plate-thickness)
-                                 (translate [(+ (/ 1.5 2) (/ keyswitch-width 2))
-                                             0
-                                             (/ plate-thickness 2)]))))
-        plate-half (union top-wall left-wall (with-fn 100 side-nub))]
-    (union plate-half
-           (->> plate-half
-                (mirror [1 0 0])
-                (mirror [0 1 0])))))
-
-(def alps-width 15.6)
-(def alps-notch-width 15.5)
-(def alps-notch-height 1)
-(def alps-height 13)
-
-(def single-plate
-  (let [top-wall (->> (cube (+ keyswitch-width 3) 2.2 plate-thickness)
-                      (translate [0
-                                  (+ (/ 2.2 2) (/ alps-height 2))
-                                  (/ plate-thickness 2)]))
-        left-wall (union (->> (cube 1.5 (+ keyswitch-height 3) plate-thickness)
-                              (translate [(+ (/ 1.5 2) (/ 15.6 2))
-                                          0
-                                          (/ plate-thickness 2)]))
-                         (->> (cube 1.5 (+ keyswitch-height 3) 1.0)
-                              (translate [(+ (/ 1.5 2) (/ alps-notch-width 2))
-                                          0
-                                          (- plate-thickness
-                                             (/ alps-notch-height 2))]))
-                         )
-        plate-half (union top-wall left-wall)]
-    (union plate-half
-           (->> plate-half
-                (mirror [1 0 0])
-                (mirror [0 1 0])))))
-
-
-;;;;;;;;;;;;;;;;
-;; SA Keycaps ;;
-;;;;;;;;;;;;;;;;
-
-(def sa-length 18.25)
-(def sa-double-length 37.5)
-(def sa-cap {1 (let [bl2 (/ 18.5 2)
-                     m (/ 17 2)
-                     key-cap (hull (->> (polygon [[bl2 bl2] [bl2 (- bl2)] [(- bl2) (- bl2)] [(- bl2) bl2]])
-                                        (extrude-linear {:height 0.1 :twist 0 :convexity 0})
-                                        (translate [0 0 0.05]))
-                                   (->> (polygon [[m m] [m (- m)] [(- m) (- m)] [(- m) m]])
-                                        (extrude-linear {:height 0.1 :twist 0 :convexity 0})
-                                        (translate [0 0 6]))
-                                   (->> (polygon [[6 6] [6 -6] [-6 -6] [-6 6]])
-                                        (extrude-linear {:height 0.1 :twist 0 :convexity 0})
-                                        (translate [0 0 12])))]
-                 (->> key-cap
-                      (translate [0 0 (+ 5 plate-thickness)])
-                      (color [220/255 163/255 163/255 1])))
-             2 (let [bl2 (/ sa-double-length 2)
-                     bw2 (/ 18.25 2)
-                     key-cap (hull (->> (polygon [[bw2 bl2] [bw2 (- bl2)] [(- bw2) (- bl2)] [(- bw2) bl2]])
-                                        (extrude-linear {:height 0.1 :twist 0 :convexity 0})
-                                        (translate [0 0 0.05]))
-                                   (->> (polygon [[6 16] [6 -16] [-6 -16] [-6 16]])
-                                        (extrude-linear {:height 0.1 :twist 0 :convexity 0})
-                                        (translate [0 0 12])))]
-                 (->> key-cap
-                      (translate [0 0 (+ 5 plate-thickness)])
-                      (color [127/255 159/255 127/255 1])))
-             1.5 (let [bl2 (/ 18.25 2)
-                       bw2 (/ 28 2)
-                       key-cap (hull (->> (polygon [[bw2 bl2] [bw2 (- bl2)] [(- bw2) (- bl2)] [(- bw2) bl2]])
-                                          (extrude-linear {:height 0.1 :twist 0 :convexity 0})
-                                          (translate [0 0 0.05]))
-                                     (->> (polygon [[11 6] [-11 6] [-11 -6] [11 -6]])
-                                          (extrude-linear {:height 0.1 :twist 0 :convexity 0})
-                                          (translate [0 0 12])))]
-                   (->> key-cap
-                        (translate [0 0 (+ 5 plate-thickness)])
-                        (color [240/255 223/255 175/255 1])))})
-
-;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Placement Functions ;;
-;;;;;;;;;;;;;;;;;;;;;;;;;
-
-(def columns (range 0 6))
-(def rows (range 0 5))
-
-(def α (/ π 12))
-(def β (/ π 36))
-(def cap-top-height (+ plate-thickness sa-profile-key-height))
-(def row-radius (+ (/ (/ (+ mount-height 1/2) 2)
-                      (Math/sin (/ α 2)))
-                   cap-top-height))
-(def column-radius (+ (/ (/ (+ mount-width 2.0) 2)
-                         (Math/sin (/ β 2)))
-                      cap-top-height))
-
-(defn key-place [column row shape]
-  (let [row-placed-shape (->> shape
-                              (translate [0 0 (- row-radius)])
-                              (rotate (* α (- 2 row)) [1 0 0])
-                              (translate [0 0 row-radius]))
-        column-offset (cond
-                        (= column 2) [0 2.82 -3.0] ;;was moved -4.5
-                        (>= column 4) [0 -5.8 5.64]
-                        :else [0 0 0])
-        column-angle (* β (- 2 column))
-        placed-shape (->> row-placed-shape
-                          (translate [0 0 (- column-radius)])
-                          (rotate column-angle [0 1 0])
-                          (translate [0 0 column-radius])
-                          (translate column-offset))]
-    (->> placed-shape
-         (rotate (/ π 12) [0 1 0])
-         (translate [0 0 13]))))
 
 (defn case-place [column row shape]
   (let [row-placed-shape (->> shape
@@ -161,76 +23,6 @@
     (->> placed-shape
          (rotate (/ π 12) [0 1 0])
          (translate [0 0 13]))))
-
-(def key-holes
-  (apply union
-         (for [column columns
-               row rows
-               :when (or (not= column 0)
-                         (not= row 4))]
-           (->> single-plate
-                (key-place column row)))))
-
-(def caps
-  (apply union
-         (for [column columns
-               row rows
-               :when (or (not= column 0)
-                         (not= row 4))]
-           (->> (sa-cap (if (= column 5) 1 1))
-                (key-place column row)))))
-
-;;;;;;;;;;;;;;;;;;;;
-;; Web Connectors ;;
-;;;;;;;;;;;;;;;;;;;;
-
-(def web-thickness 3.5)
-(def post-size 0.1)
-(def web-post (->> (cube post-size post-size web-thickness)
-                   (translate [0 0 (+ (/ web-thickness -2)
-                                      plate-thickness)])))
-
-(def post-adj (/ post-size 2))
-(def web-post-tr (translate [(- (/ mount-width 2) post-adj) (- (/ mount-height 2) post-adj) 0] web-post))
-(def web-post-tl (translate [(+ (/ mount-width -2) post-adj) (- (/ mount-height 2) post-adj) 0] web-post))
-(def web-post-bl (translate [(+ (/ mount-width -2) post-adj) (+ (/ mount-height -2) post-adj) 0] web-post))
-(def web-post-br (translate [(- (/ mount-width 2) post-adj) (+ (/ mount-height -2) post-adj) 0] web-post))
-
-(def connectors
-  (apply union
-         (concat
-          ;; Row connections
-          (for [column (drop-last columns)
-                row rows
-                :when (or (not= column 0)
-                          (not= row 4))]
-            (triangle-hulls
-             (key-place (inc column) row web-post-tl)
-             (key-place column row web-post-tr)
-             (key-place (inc column) row web-post-bl)
-             (key-place column row web-post-br)))
-
-          ;; Column connections
-          (for [column columns
-                row (drop-last rows)
-                :when (or (not= column 0)
-                          (not= row 3))]
-            (triangle-hulls
-             (key-place column row web-post-bl)
-             (key-place column row web-post-br)
-             (key-place column (inc row) web-post-tl)
-             (key-place column (inc row) web-post-tr)))
-
-          ;; Diagonal connections
-          (for [column (drop-last columns)
-                row (drop-last rows)
-                :when (or (not= column 0)
-                          (not= row 3))]
-            (triangle-hulls
-             (key-place column row web-post-br)
-             (key-place column (inc row) web-post-tr)
-             (key-place (inc column) row web-post-bl)
-             (key-place (inc column) (inc row) web-post-tl))))))
 
 ;;;;;;;;;;;;
 ;; Thumbs ;;
@@ -382,7 +174,7 @@
 (def thumb
   (union
    thumb-connectors
-   (thumb-layout (rotate (/ π 2) [0 0 1] single-plate))
+   (thumb-layout (rotate (/ π 2) [0 0 1] switch-hole))
    (thumb-place 0 -1/2 double-plates)
    (thumb-place 1 -1/2 double-plates)))
 
@@ -1223,7 +1015,7 @@
 
 (def dactyl-top-right
   (difference
-   (union key-holes
+   (union switch-holes
           connectors
           thumb
           new-case
@@ -1234,18 +1026,16 @@
 (def dactyl-top-left
   (mirror [-1 0 0]
           (difference
-           (union key-holes
+           (union switch-holes
                   connectors
                   thumb
                   new-case)
            trrs-hole-just-circle
            screw-holes)))
 
-(spit "things/switch-hole.scad"
-      (write-scad single-plate))
-
-(spit "things/alps-holes.scad"
-      (write-scad (union connectors key-holes)))
+;;;;;;;;;;;;;;;;;
+;; Write Files ;;
+;;;;;;;;;;;;;;;;;
 
 (spit "things/dactyl-top-right.scad"
       (write-scad dactyl-top-right))

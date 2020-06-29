@@ -2,6 +2,12 @@
   (:refer-clojure :exclude [use import])
   (:require [scad-clj.model :refer :all]))
 
+;; Configuration
+
+(def plate-thickness 4)
+
+;; Utilities
+
 (defn triangle-hulls [& shapes]
   (apply union
          (map (partial apply hull)
